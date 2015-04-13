@@ -1,0 +1,28 @@
+<div class="row" ng-controller="ServersCtrl">
+  <div class="row">
+    <div class="col-lg-12">
+      <rd-widget>
+        <rd-widget-header icon="fa-tasks" title="Available Servers">
+        </rd-widget-header>
+        <rd-widget-body classes="medium no-padding">
+        <rd-loading ng-show="!servers.length"></rd-loading>
+          <div class="table-responsive" >
+            <table class="table">
+              <tbody>
+                <tr ng-repeat="server in servers"><td>{{server.name}}</td>
+                <td><a ng-click="closeServer($index)" tooltip="remove"><span class="text-success"><i class="fa fa-trash-o fa-border"></i></span> </a></td></tr>
+              </tbody>
+            </table>
+          </div>      
+        </rd-widget-body>
+      </rd-widget>
+    </div>
+  </div>
+  <div class="row pull-right">
+    <div class="col-lg-12">
+      <a class="btn btn-md btn-success" ng-click="addServer()" tooltip="add new server" style="width:50px"><span class="menu-icon fa fa-plus"></span> </a>
+      <a class="btn btn-md btn-danger" ng-click="closeAllServers()" tooltip="remove all servers" style="width:50px"><span class="menu-icon fa fa-minus"></span> </a>
+      <a class="btn btn-md btn-info" ng-click="refreshServers()" tooltip="refresh servers list" style="width:50px"><span class="menu-icon fa fa-refresh"></span> </a>
+    </div>
+  </div>
+</div>
