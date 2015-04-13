@@ -3,12 +3,18 @@
 # ~~~~
 
 # Home page
-GET     /                           controllers.Application.index
+GET        /                            controllers.Application.index
 
 # Map static resources from the /public folder to the /assets URL path
-GET        /assets/*file           controllers.Assets.at(path="/public", file)
-GET        /api/listmachines       controllers.Api.wsListMachines
-GET        /api/addmachine         controllers.Api.addmachine
-GET        /api/removeall          controllers.Api.removeall
-GET        /api/screens            controllers.Api.wsScreens
-GET        /api/refreshmachines    controllers.Api.refreshmachines
+GET        /assets/*file                controllers.Assets.at(path="/public", file)
+GET        /templates/*file             controllers.Assets.at(path="/public/templates", file)
+GET        /img/*file                   controllers.Assets.at(path="/public/images", file)
+GET        /mode-javascript.js          controllers.Assets.at(path="/public", file="mode-javascript.js")
+GET        /theme-monokai.js            controllers.Assets.at(path="/public", file="theme-monokai.js")
+GET        /worker-javascript.js        controllers.Assets.at(path="/public", file="worker-javascript.js")
+
+GET        /api/listmachines            controllers.Api.wsListMachines
+GET        /api/addmachine              controllers.Api.addmachine
+GET        /api/removeall               controllers.Api.removeall
+GET        /api/screens                 controllers.Api.wsScreens
+GET        /api/refreshmachines         controllers.Api.refreshmachines

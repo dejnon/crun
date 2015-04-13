@@ -74,7 +74,6 @@ object Main {
     val initialContacts = immutableSeq(conf.getStringList("contact-points")).map {
       case AddressFromURIString(addr) ⇒ system.actorSelection(RootActorPath(addr) / "user" / "receptionist")
     }.toSet
-
     val clusterClient = system.actorOf(ClusterClient.props(initialContacts), "clusterClient")
     system.actorOf(Worker.props(clusterClient, Props[WorkExecutor]), "worker")
   }
