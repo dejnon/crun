@@ -14,7 +14,6 @@ GET        /theme-monokai.js            controllers.Assets.at(path="/public", fi
 GET        /worker-javascript.js        controllers.Assets.at(path="/public", file="worker-javascript.js")
 
 GET        /api/listmachines            controllers.Api.wsListMachines
-GET        /api/removemongo/:name      controllers.Api.removemongo(name: String)
 GET        /api/addmachine              controllers.Api.addmachine
 GET        /api/removeall               controllers.Api.removeall
 GET        /api/screens                 controllers.Api.wsScreens
