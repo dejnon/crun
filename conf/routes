@@ -11,3 +11,4 @@ GET        /api/listmachines       controllers.Api.wsListMachines
 GET        /api/addmachine         controllers.Api.addmachine
 GET        /api/removeall          controllers.Api.removeall
 GET        /api/screens            controllers.Api.wsScreens
+GET        /api/refreshmachines    controllers.Api.refreshmachines

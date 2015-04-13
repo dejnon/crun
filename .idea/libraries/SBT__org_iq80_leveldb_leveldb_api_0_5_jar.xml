@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="SBT: org.iq80.leveldb:leveldb-api:0.5:jar">
+    <CLASSES>
+      <root url="jar:///usr/local/Cellar/typesafe-activator/1.3.2/libexec/repository/org.iq80.leveldb/leveldb-api/0.5/jars/leveldb-api.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

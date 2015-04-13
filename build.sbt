@@ -36,8 +36,17 @@ libraryDependencies ++= Seq(
   "com.typesafe.akka" %% "akka-contrib" % "2.3.6",
   "com.typesafe.akka" %% "akka-testkit" % "2.3.6",
   "com.amazonaws" % "aws-java-sdk" % "1.0.002",
-  "com.jcraft" % "jsch" % "0.1.51",
+//  "com.decodified" %% "scala-ssh" % "0.7.0",
+  "ch.qos.logback" % "logback-classic" % "1.1.2",
+  "org.bouncycastle" % "bcprov-jdk16" % "1.46",
+  "com.jcraft" % "jzlib" % "1.1.3",
+//  "com.jcraft" % "jsch" % "0.1.51",
   "commons-io" % "commons-io" % "2.4" % "test")
 
+resolvers += "JAnalyse Repository" at "http://www.janalyse.fr/repository/"
 
-fork in run := true
+libraryDependencies += "fr.janalyse"   %% "janalyse-ssh" % "0.9.18" % "compile"
+
+libraryDependencies ++= Seq("org.reactivemongo" %% "play2-reactivemongo" % "0.10.5.0.akka23")
+
+//fork in run := true

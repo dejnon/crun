@@ -130,6 +130,7 @@ public class HelloCloud {
 		return null;
 	}
 
+
     public static AWSCredentials setupCredentials() {
         // Read credentials from file
         AWSCredentials credentials = null;
@@ -142,6 +143,7 @@ public class HelloCloud {
             System.exit(-1);
             return null;
         }
+
     }
 
     /**

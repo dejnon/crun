@@ -1,16 +1,37 @@
 package controllers
-
+import play.api._
+import play.api.mvc._
+import play.api.libs.concurrent.Execution.Implicits.defaultContext
+import play.api.libs.functional.syntax._
+import play.api.libs.json._
+import reactivemongo.bson.BSONDocument
+import scala.concurrent.Future
+import java.io.{IOException, InputStreamReader, BufferedReader, InputStream}
 import java.util.{Properties, UUID}
-
+//import javax.swing.JOptionPane
+//import com.decodified.scalassh._
+//import net.schmizz.sshj.transport.verification.HostKeyVerifier
+//import akka.
 import akka.actor._
 import akka.contrib.pattern.{ClusterSingletonProxy, DistributedPubSubMediator}
-import aws.HelloCloud
+import aws.{Exec, HelloCloud}
+import com.google.common.base.Joiner
 import com.typesafe.config.ConfigFactory
 import play.api.Play.current
 import play.api.libs.concurrent.Akka
 import play.api.mvc._
 import play.api.libs.json._
 //import worker._
+import fr.janalyse.ssh._
+import jassh._
+
+import play.api._
+import play.api.mvc._
+import play.api.libs.concurrent.Execution.Implicits.defaultContext
+import play.api.libs.functional.syntax._
+import play.api.libs.json._
+import scala.concurrent.Future
+
 import com.amazonaws.auth.AWSCredentials
 import com.amazonaws.auth.PropertiesCredentials
 import com.amazonaws.services.ec2.AmazonEC2Client
@@ -22,18 +43,55 @@ import com.amazonaws.services.ec2.model.RunInstancesRequest
 import com.amazonaws.services.ec2.model.RunInstancesResult
 import com.amazonaws.services.ec2.model.StopInstancesRequest
 import com.amazonaws.services.ec2.model.StopInstancesResult
-import com.jcraft.jsch.Channel
-import com.jcraft.jsch.ChannelSftp
-import com.jcraft.jsch.JSch
-import com.jcraft.jsch.Session
+//import com.jcraft.jsch._
 
-object Api extends Controller {
+import reactivemongo.api._
+
+import play.modules.reactivemongo.MongoController
+import play.modules.reactivemongo.json.collection.JSONCollection
+
+
+case class Machine(name: String, instance: String)
+
+object JsonFormats {
+  import play.api.libs.json.Json
+  import play.api.data._
+  import play.api.data.Forms._
+
+  implicit val machineFormat = Json.format[Machine]
+}
+
+object Api extends Controller with MongoController {
   var machines = scala.collection.mutable.Map[String, Instance]()
-  val helloCloud: HelloCloud = new HelloCloud(HelloCloud.setupCredentials)
+  val aws: HelloCloud = new HelloCloud(HelloCloud.setupCredentials)
   var listWs: ActorRef = null
+  def machinesMongo: JSONCollection = db.collection[JSONCollection]("machines")
 
   def wsListMachines = WebSocket.acceptWithActor[String, String] { request => out =>
     ListWebSocketActor.props(out)
+  }
+
+  def refreshmachines = Action.async {
+    val query = Json.obj()
+    val cursor: Cursor[JsObject] = machinesMongo.find(query).cursor[JsObject]
+    val futureMachinesList: Future[List[JsObject]] = cursor.collect[List]()
+    val machinesMap = scala.collection.mutable.Map[String, Instance]()
+    futureMachinesList.map {
+      machines =>
+        machines.map {
+          machine => {
+            val json = Json.parse(machine.toString)
+            val name: String = (json \ "name").asOpt[String].get
+            val instanceAddress: String = (json \ "instance").asOpt[String].get
+            val instance = new Instance()
+            instance.setPublicIpAddress(instanceAddress)
+            machinesMap += name -> instance
+            println(machinesMap)
+          }
+        }
+        Api.machines = machinesMap
+        Ok("OK")
+    }
   }
 
   def updateList = {
@@ -53,18 +111,17 @@ object Api extends Controller {
   }
 
   def addmachine = Action {
-    helloCloud.printRunning
+    aws.printRunning
 
-    var instance: Instance = helloCloud.startInstance
+    var instance: Instance = aws.startInstance
     println(machines)
-
     // Wait while not running
     try {
       System.out.println("Waiting for " + instance.getInstanceId + " to start.")
       while (instance.getState.getName != "running") {
-          Thread.sleep(5000)
-          instance = helloCloud.updateDescription(instance)
-          System.out.println("Current state: " + instance.getState.getName)
+        Thread.sleep(5000)
+        instance = aws.updateDescription(instance)
+        System.out.println("Current state: " + instance.getState.getName)
       }
       if (instance.getState.getName == "running") {
         System.out.println("Running!")
@@ -74,29 +131,31 @@ object Api extends Controller {
       case e: InterruptedException => {
       }
     }
-    machines.put(instance.getInstanceId.toString, instance)
+    machines.put(instance.getInstanceId, instance)
+//    addmongo(instance.getInstanceId, instance)
     println(s"$machines")
     updateList
     Ok("OK")
   }
 
   def removeall = Action {
-    helloCloud.printRunning
+    aws.printRunning
     machines.foreach {
       case (id: String, instance: Instance) => {
         if (instance != null) {
           var tempInstance = instance
-          helloCloud.stopInstance(tempInstance)
+          aws.stopInstance(tempInstance)
           // Wait for instance to stop
           try {
             System.out.println("Waiting for " + tempInstance.getInstanceId + " to stop.")
             while (tempInstance.getState.getName != "stopped") {
               Thread.sleep(5000)
-              tempInstance = helloCloud.updateDescription(tempInstance)
+              tempInstance = aws.updateDescription(tempInstance)
               System.out.println("Current state: " + tempInstance.getState.getName)
             }
             if (tempInstance.getState.getName == "stopped") {
               System.out.println("Stopped!")
+              updateList
             }
           }
           catch {
@@ -118,111 +177,6 @@ object Api extends Controller {
 
   def wsScreens = WebSocket.acceptWithActor[String, String] { request => out =>
     ScreensWebSocketActor.props(out)
-  }
-
-}
-
-object ListWebSocketActor {
-  def props(out: ActorRef) = Props(new ListWebSocketActor(out))
-}
-
-object ScreensWebSocketActor {
-  def props(out: ActorRef) = Props(new ScreensWebSocketActor(out))
-}
-
-class ListWebSocketActor(out: ActorRef) extends Actor with ActorLogging {
-
-  def receive = {
-    case msg: String =>
-      Api.listWs = out
-      Api.updateList
-      Thread.sleep(5000)
-      out ! (
-        """
-          | [{
-          |   "name": "Alfredo",
-          |   "id": "3",
-          |   "status": "Avilable"
-          | }, {
-          |   "name": "Bartus",
-          |   "id": "4",
-          |   "status": "Working"
-          | }, {
-          |   "name": "Celina",
-          |   "id": "2",
-          |   "status": "Offline"
-          | }]
-        """.stripMargin)
-  }
-}
-
-class ScreensWebSocketActor(out: ActorRef) extends Actor with ActorLogging {
-  def receive = {
-    case cmd: String if cmd.startsWith("{") =>
-      out ! "thanks for command"
-      val json = Json.parse(cmd)
-      val workerId: String = (json \ "id").asOpt[String].get
-      val workerCommand: String = (json \ "cmd").asOpt[String].get
-      out ! (
-        s"""
-           | {
-           |   "id": "$workerId",
-           |   "cmd": "# $workerCommand"
-           | }
-        """.
-          stripMargin)
-      println(Api.machines)
-      if (workerId != null && Api.machines.size > 0) {
-        val instance = Api.machines(workerId)
-        println(instance)
-        println("Connecting to " + instance.getPublicIpAddress )
-        sendCommand(instance.getPublicIpAddress)
-      }
-
-
-    case _ =>
-      out ! (
-        s"""
-          | {
-          |   "id": "1",
-          |   "cmd": "Sent command: ls hello"
-          | }
-        """.
-          stripMargin)
-  }
-
-  def sendCommand(host: String) = {
-    try {
-      val jsch: JSch = new JSch
-      val user: String = "ubuntu"
-//      val host: String = "192.18.0.246"
-      val port: Int = 22
-      val privateKey: String = "/Users/danone/.ssh/ens14dka-keypair.pem"
-      jsch.addIdentity(privateKey)
-      System.out.println("identity added ")
-      val session: Session = jsch.getSession(user, host, port)
-      System.out.println("session created.")
-      val config: Properties = new Properties
-      config.put("StrictHostKeyChecking", "no")
-      session.setConfig(config)
-      session.connect
-      System.out.println("session connected.....")
-      val channel: Channel = session.openChannel("sftp")
-      channel.setInputStream(System.in)
-      channel.setOutputStream(System.out)
-      channel.connect
-      System.out.println("shell channel connected....")
-      val c: ChannelSftp = channel.asInstanceOf[ChannelSftp]
-      val fileName: String = "test.txt"
-      c.put(fileName, "./in/")
-      c.exit
-      System.out.println("done")
-    }
-    catch {
-      case e: Exception => {
-        System.err.println(e)
-      }
-    }
   }
 
 }
