@@ -16,4 +16,7 @@ project/plugins/project/
 .scala_dependencies
 .worksheet
 
-.idea/libraries/*
+*.iml
+
+## Directory-based project format:
+.idea/
