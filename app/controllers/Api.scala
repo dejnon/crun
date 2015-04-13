@@ -8,6 +8,9 @@ import reactivemongo.bson.BSONDocument
 import scala.concurrent.Future
 import java.io.{IOException, InputStreamReader, BufferedReader, InputStream}
 import java.util.{Properties, UUID}
+
+import scala.util.{Success, Failure}
+
 //import javax.swing.JOptionPane
 //import com.decodified.scalassh._
 //import net.schmizz.sshj.transport.verification.HostKeyVerifier
@@ -76,6 +79,7 @@ object Api extends Controller with MongoController {
     val cursor: Cursor[JsObject] = machinesMongo.find(query).cursor[JsObject]
     val futureMachinesList: Future[List[JsObject]] = cursor.collect[List]()
     val machinesMap = scala.collection.mutable.Map[String, Instance]()
+    println(Api.machines)
     futureMachinesList.map {
       machines =>
         machines.map {
@@ -85,11 +89,12 @@ object Api extends Controller with MongoController {
             val instanceAddress: String = (json \ "instance").asOpt[String].get
             val instance = new Instance()
             instance.setPublicIpAddress(instanceAddress)
-            machinesMap += name -> instance
-            println(machinesMap)
+            instance.setInstanceId(name)
+            machinesMap += name -> aws.updateDescription(instance)
           }
         }
         Api.machines = machinesMap
+        println(Api.machines)
         Ok("OK")
     }
   }
@@ -132,47 +137,75 @@ object Api extends Controller with MongoController {
       }
     }
     machines.put(instance.getInstanceId, instance)
-//    addmongo(instance.getInstanceId, instance)
+    addmongo(instance.getInstanceId, instance)
     println(s"$machines")
     updateList
     Ok("OK")
   }
 
+  def removemongo(name: String) = {
+    println(s"removing ${name} from mongo")
+    val selector = Json.obj(
+      "name" -> name)
+
+    val futureRemove = machinesMongo.remove(selector)
+
+    futureRemove.onComplete {
+      case Failure(e) => throw e
+      case Success(lasterror) => {
+        println("successfully removed document" + lasterror)
+      }
+    }
+  }
+
+  def addmongo(name: String, instance: Instance) = {
+    val json = Json.obj(
+      "name" -> name,
+      "instance" -> instance.getPublicIpAddress,
+      "created" -> new java.util.Date().getTime())
+
+    machinesMongo.insert(json)
+  }
+
   def removeall = Action {
     aws.printRunning
     machines.foreach {
-      case (id: String, instance: Instance) => {
-        if (instance != null) {
-          var tempInstance = instance
-          aws.stopInstance(tempInstance)
-          // Wait for instance to stop
-          try {
-            System.out.println("Waiting for " + tempInstance.getInstanceId + " to stop.")
-            while (tempInstance.getState.getName != "stopped") {
-              Thread.sleep(5000)
-              tempInstance = aws.updateDescription(tempInstance)
-              System.out.println("Current state: " + tempInstance.getState.getName)
-            }
-            if (tempInstance.getState.getName == "stopped") {
-              System.out.println("Stopped!")
-              updateList
-            }
-          }
-          catch {
-            case e: InterruptedException => {
-            }
-          }
-        }
-        else {
-          println(s"Didnt close instance $instance")
-        }
-      }
-        println("ok")
+      case (id: String, instance: Instance) =>
+        removeone(id, instance)
     }
     println(s"$machines")
     machines = scala.collection.mutable.Map[String, Instance]()
     updateList
     Ok("OK")
+  }
+
+  def removeone(id: String, instance: Instance) = {
+    if (instance != null) {
+      var tempInstance = instance
+      aws.stopInstance(tempInstance)
+      // Wait for instance to stop
+      try {
+        System.out.println("Waiting for " + tempInstance.getInstanceId + " to stop.")
+        while (tempInstance.getState.getName != "stopped") {
+          Thread.sleep(5000)
+          tempInstance = aws.updateDescription(tempInstance)
+          System.out.println("Current state: " + tempInstance.getState.getName)
+        }
+        if (tempInstance.getState.getName == "stopped") {
+          System.out.println("Stopped!")
+          updateList
+        }
+      }
+      catch {
+        case e: InterruptedException => {
+        }
+      }
+    }
+    else {
+      println(s"Didnt close instance $instance")
+    }
+    println("done")
+    removemongo(id)
   }
 
   def wsScreens = WebSocket.acceptWithActor[String, String] { request => out =>
