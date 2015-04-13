@@ -15,7 +15,7 @@ object ScreensWebSocketActor {
 class ScreensWebSocketActor(out: ActorRef) extends Actor with ActorLogging {
   def receive = {
     case cmd: String if cmd.startsWith("{") =>
-      out ! "thanks for command"
+      println("thanks for command")
       val json = Json.parse(cmd)
       val workerId: String = (json \ "id").asOpt[String].get
       val workerCommand: String = (json \ "cmd").asOpt[String].get
@@ -28,16 +28,15 @@ class ScreensWebSocketActor(out: ActorRef) extends Actor with ActorLogging {
       } else if (workerId != null) {
         sendCommand(workerId, workerCommand, out)
       }
-
-    case _ =>
-      out ! (
-        s"""
-           | {
-           |   "id": "1",
-           |   "cmd": "Sent command: ls hello"
-           | }
-              """.
-          stripMargin)
+//    case _ =>
+//      out ! (
+//        s"""
+//           | {
+//           |   "id": "1",
+//           |   "cmd": "Sent command: ls hello"
+//           | }
+//              """.
+//          stripMargin)
   }
 
   def sendCommand(host: String, command: String, out: ActorRef): Unit = {
@@ -54,8 +53,8 @@ class ScreensWebSocketActor(out: ActorRef) extends Actor with ActorLogging {
             s"""
                | {
                |   "id": "$host",
-                                 |   "cmd": "$content"
-                                                       | }
+               |   "cmd": "$content"
+               | }
             """.stripMargin)
         case _ =>
       }).waitForEnd

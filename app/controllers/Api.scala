@@ -95,6 +95,7 @@ object Api extends Controller with MongoController {
         }
         Api.machines = machinesMap
         println(Api.machines)
+        updateList
         Ok("OK")
     }
   }
