@@ -1,9 +1,0 @@
-<component name="libraryTable">
-  <library name="SBT: junit:junit:4.11:jar">
-    <CLASSES>
-      <root url="jar:///usr/local/Cellar/typesafe-activator/1.3.2/libexec/repository/junit/junit/4.11/jars/junit.jar!/" />
-    </CLASSES>
-    <JAVADOC />
-    <SOURCES />
-  </library>
-</component>
