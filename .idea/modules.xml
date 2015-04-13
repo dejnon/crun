@@ -4,8 +4,8 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/crun.iml" filepath="$PROJECT_DIR$/crun.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/crun-build.iml" filepath="$PROJECT_DIR$/.idea/modules/crun-build.iml" />
-      <module fileurl="file://$PROJECT_DIR$/project/.idea/modules/project.iml" filepath="$PROJECT_DIR$/project/.idea/modules/project.iml" />
-      <module fileurl="file://$PROJECT_DIR$/project/.idea/modules/project-build.iml" filepath="$PROJECT_DIR$/project/.idea/modules/project-build.iml" />
+      <module fileurl="file://$PROJECT_DIR$/project/project/.idea/modules/project.iml" filepath="$PROJECT_DIR$/project/project/.idea/modules/project.iml" />
+      <module fileurl="file://$PROJECT_DIR$/project/project/.idea/modules/project-build.iml" filepath="$PROJECT_DIR$/project/project/.idea/modules/project-build.iml" />
     </modules>
   </component>
 </project>
