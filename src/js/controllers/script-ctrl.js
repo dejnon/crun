@@ -9,7 +9,7 @@ angular
 function ScriptCtrl($scope, $rootScope) {
     var editor = ace.edit("editor");
     editor.setTheme("ace/theme/monokai");
-    editor.getSession().setMode("ace/mode/javascript");
+    editor.getSession().setMode("ace/mode/sh");
 
     $scope.clearWindow = function() {
         editor.setValue("");
