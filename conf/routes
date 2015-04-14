@@ -9,7 +9,7 @@ GET        /                            controllers.Application.index
 GET        /assets/*file                controllers.Assets.at(path="/public", file)
 GET        /templates/*file             controllers.Assets.at(path="/public/templates", file)
 GET        /img/*file                   controllers.Assets.at(path="/public/images", file)
-GET        /mode-javascript.js          controllers.Assets.at(path="/public", file="mode-javascript.js")
+GET        /mode-sh.js          controllers.Assets.at(path="/public", file="mode-sh.js")
 GET        /theme-monokai.js            controllers.Assets.at(path="/public", file="theme-monokai.js")
 GET        /worker-javascript.js        controllers.Assets.at(path="/public", file="worker-javascript.js")
 
