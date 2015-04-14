@@ -5,12 +5,13 @@
         <rd-widget-header icon="fa-tasks" title="Available Servers">
         </rd-widget-header>
         <rd-widget-body classes="medium no-padding">
-        <rd-loading ng-show="!servers.length"></rd-loading>
+        <rd-loading ng-show="spinner"></rd-loading>
           <div class="table-responsive" >
             <table class="table">
               <tbody>
-                <tr ng-repeat="server in servers"><td>{{server.name}}</td>
+                <tr ng-repeat="server in servers" ng-hide="spinner"><td>{{server.name}}</td>
                 <td><a ng-click="closeServer($index)" tooltip="remove"><span class="text-success"><i class="fa fa-trash-o fa-border"></i></span> </a></td></tr>
+                <tr ng-show="loading"><td><span class="text-success" ><i class="fa fa-cog fa-spin" ></i> adding new machine </span></td><td></td></tr>
               </tbody>
             </table>
           </div>      

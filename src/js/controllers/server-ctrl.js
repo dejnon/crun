@@ -22,6 +22,7 @@ function ServersCtrl($scope, $rootScope, $http, $filter) {
     $scope.connected = 'false';
     $scope.connect = 'true';
     $scope.loading = 'false';
+    $scope.spinner = 'false';
 
         $scope.myWebSocket = new WebSocket("ws://"+adres+"/api/listmachines");
 
@@ -94,8 +95,11 @@ console.log($rootScope.results);
 
 
     $scope.addServer = function() {
+        console.log("Zaczynamy dodawac");
+        $scope.loading='true';
         $http.get('http://'+adres+'/api/addmachine').success(function(data){
-            console.log("OK, wyslano zadanie dodania maszyny");
+            console.log("OK, server will be added soon");
+            $scope.loading='false';
         }).error(function(data){
             console.log("Fail http get");
         });
@@ -133,16 +137,20 @@ console.log($rootScope.results);
 
 
     $scope.refreshServers = function() {
+        $scope.spinner='true';
         $http.get('http://'+adres+'/api/refreshmachines').success(function(data){
             console.log("OK, list will be refreshed");
+            $scope.spinner = 'false';
         }).error(function(data){
             console.log("Fail http get");
         });
     };
 
     $scope.closeAllServers = function() {
+        $scope.spinner='true';
         $http.get('http://'+adres+'/api/removeall').success(function(data){
             console.log("OK, all servers will be removed soon");
+            $scope.spinner = 'false';
         }).error(function(data){
             console.log("Fail http get");
         });
