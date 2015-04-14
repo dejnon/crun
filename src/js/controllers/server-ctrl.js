@@ -56,21 +56,20 @@ function ServersCtrl($scope, $rootScope, $http, $filter) {
             console.log("My myResultWebSocket size: " + event.data);
             var obj = JSON.parse(event.data);
 
-id = obj.id.toString();
-console.log("ID: "+id);
-cmd = obj.cmd;
-cmd = obj.cmd;
-console.log("cmd: "+cmd);
+            id = obj.id.toString();
+            console.log("ID: "+id);
+            cmd = obj.cmd;
+            console.log("cmd: "+cmd);
 
             $scope.$apply(function() {
                 if(id in $rootScope.results) {
-                    $rootScope.results[id] += cmd;
+                    $rootScope.results[id].push(cmd);
                 } else {
-                    $rootScope.results[id] = cmd    
+                    $rootScope.results[id] = [cmd];
                 } 
             });
 
-console.log($rootScope.results);
+            console.log($rootScope.results);
 
         };
 
@@ -94,11 +93,13 @@ console.log($rootScope.results);
 
 
     $scope.addServer = function() {
-        $http.get('http://'+adres+'/api/addmachine').success(function(data){
-            console.log("OK, wyslano zadanie dodania maszyny");
-        }).error(function(data){
-            console.log("Fail http get");
-        });
+        $http.get('http://'+adres+'/api/addmachine').
+            success(function(data){
+                console.log("OK, wyslano zadanie dodania maszyny");
+            }).
+            error(function(data){
+                console.log("Fail http get");
+            });
     };
     
     $scope.connectToWS = function() {
@@ -120,10 +121,9 @@ console.log($rootScope.results);
         var sid = args.sid;
         var cmd = args.cmd; 
         console.log("skrypt broadcast sid: "+sid+" cmd: "+cmd);
-       $scope.myResultWebSocket.send('{ 
-            "id": "'+sid+'", 
-            "cmd": "'+cmd+'"
-        }'); 
+       $scope.myResultWebSocket.send(
+           '{"id": "'+sid+'", "cmd": "'+cmd+'"}'
+       );
 
     });
 
