@@ -112,6 +112,9 @@ function ServersCtrl($scope, $rootScope, $http, $filter) {
     $scope.seeServer = function(index) {
         $scope.see=index;
     };
+    //$scope.sendAll=function(){
+    //    sendToServer('!');
+    //}
 
     $scope.sendToServer = function(index){
         var sid = $rootScope.servers[index].id;

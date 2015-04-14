@@ -10,13 +10,18 @@ function ScriptCtrl($scope, $rootScope) {
     var editor = ace.edit("editor");
     editor.setTheme("ace/theme/monokai");
     editor.getSession().setMode("ace/mode/sh");
+    $rootScope.commands;
+    editor.setValue($rootScope.commands);
+
 
     $scope.clearWindow = function() {
         editor.setValue("");
     };
 
     $scope.showWindow = function() {
-        editor.setValue("pwd");
+        editor.setValue('pwd       ' +
+        '\nping -c 5 wwww.gooogle.pl'
+        +'\nifconfig');
     };
 
     $scope.$on('sid', function(events, args){
@@ -27,8 +32,8 @@ function ScriptCtrl($scope, $rootScope) {
     });
 
     $scope.saveWindow = function() {
-        $scope.tekst = editor.getValue();
-        alert("You need to choose one of the listed serves!");    
+        $rootScope.commands = editor.getValue();
+        alert("To save it on server, You need to choose one of the listed serves!");
     };
 }
 
