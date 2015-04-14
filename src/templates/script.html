@@ -16,43 +16,65 @@
     </div>
     <div class="clearfix"></div>     
   </div>
+    <div class="col-lg-6" ng-controller="AlertsCtrl">
+        <rd-widget>
+            <rd-widget-header icon="fa-info" title="Instruction">
+            </rd-widget-header>
+            <rd-widget-body classes="medium no-padding">
+                <div class="table-responsive">
+                    <table class="table">
+                        <tbody>
+                        <tr ng-repeat="hint in hints" ng-hide="hint.done"><td>{{hint.value}}</td>
+                            <td><a class"pull-right" ng-click="closeHint($index)" tooltip="remove"><span class="text-success"><i class="fa fa-trash-o"></i></span> </a></td></tr>
+                        </tbody>
+                    </table>
+                    <div class="bs-callout" style="border: 0px">
+                        <p class="bg-success" ng-show="!hints.length">Ready to start computig, aren't you? <span class="text-success"><i class="fa fa-smile-o"></i></span></p>
+                    </div>
+                </div>
+            </rd-widget-body>
+        </rd-widget>
+    </div>
 
-  <div class="col-lg-6" ng-controller="ServersCtrl">
-    <rd-widget>
-          <rd-widget-header icon="fa-tasks" title="Servers">
-          </rd-widget-header>
-          <rd-widget-body classes="medium no-padding">
-        <div class="table-responsive">
-        <rd-loading ng-show="!servers.length"></rd-loading>
-          <table class="table">
-            <tbody>
-              <tr ng-repeat="server in servers"><td>{{server.name}}</td><td><a ng-click="sendToServer($index)" tooltip="send to this server"><span class="text-primary" ><i class="fa fa-save fa-3x pull-left fa-border"></i></span></a></td></tr>
-            </tbody>
-          </table>
-        </div>
-      </rd-widget-body>
-    </rd-widget>
-  </div>
 </div>
 
-<div class="row" ng-controller="AlertsCtrl">
-  <div class="col-lg-6">
-    <rd-widget>
-          <rd-widget-header icon="fa-info" title="Instruction">
-          </rd-widget-header>
-          <rd-widget-body classes="medium no-padding">
-        <div class="table-responsive">
-          <table class="table">
-            <tbody>
-              <tr ng-repeat="hint in hints" ng-hide="hint.done"><td>{{hint.value}}</td>
-              <td><a class"pull-right" ng-click="closeHint($index)" tooltip="remove"><span class="text-success"><i class="fa fa-trash-o"></i></span> </a></td></tr>
-            </tbody>   
-          </table>
-          <div class="bs-callout" style="border: 0px">
-          <p class="bg-success" ng-show="!hints.length">Ready to start computig, aren't you? <span class="text-success"><i class="fa fa-smile-o"></i></span></p>
-          </div>
-        </div>
-      </rd-widget-body>
-    </rd-widget>
-  </div>
+<div class="row" ng-controller="ServersCtrl">
+    <div class="col-lg-6" >
+        <rd-widget>
+            <rd-widget-header icon="fa-tasks" title="Servers">
+            </rd-widget-header>
+            <rd-widget-body classes="medium no-padding">
+                <div class="table-responsive">
+                    <rd-loading ng-show="!servers.length"></rd-loading>
+                    <table class="table">
+                        <tbody>
+                        <tr ng-repeat="server in servers"><td>{{server.name}}</td><td><a ng-click="sendToServer($index)" tooltip="send to this server"><span class="text-primary" ><i class="fa fa-save fa-3x pull-left fa-border"></i></span></a></td><td><a ng-click="seeServer($index)" tooltip="see output"><span class="text-primary" ><i class="fa fa-eye fa-3x pull-left fa-border"></i></span></a></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </rd-widget-body>
+        </rd-widget>
+    </div>
+
+    <div id="outputdiv" class="col-lg-6">
+        <rd-widget>
+            <rd-widget-header icon="fa-trophy" title="Output">
+            </rd-widget-header>
+            <rd-widget-body classes="medium no-padding">
+                <div class="bs-callout" style="border: 0px">
+                    <p class="bg-info" ng-show="servers[see].name">
+                        server <samp>{{servers[see].name}}: </samp>
+                    </p>
+                    <p class="bg-info">
+                        <samp>
+                            lalalal<br>
+                            {{result[3]}}
+
+                            {{results[servers[see].id]}}
+                        </samp>
+                    </p>
+                </div>
+            </rd-widget-body>
+            <rd-widget>
+    </div>
  </div>
